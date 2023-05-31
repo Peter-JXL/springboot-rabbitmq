@@ -40,4 +40,15 @@ public class SendMsgController {
             return msg;
         });
     }
+
+    // 开始发消息, 基于插件的延迟消息
+    @GetMapping("/sendDelayMsg/{message}/{delayTime}")
+    public void sendDelayMsg(@PathVariable String message, @PathVariable Integer delayTime){
+        log.info("当前时间：{}, 发送一条时长{}毫秒延迟信息给延迟队列delayed.queue：{}" , new Date(), delayTime, message);
+
+        rabbitTemplate.convertAndSend("delayed.exchange", "delayed.routingkey", "消息来自delayed.exchange交换机的延迟队列：" + message, msg -> {
+            msg.getMessageProperties().setDelay(delayTime);
+            return msg;
+        });
+    }
 }
